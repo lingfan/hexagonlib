@@ -1,0 +1,31 @@
+#summary How to use the hexagonlib.
+
+= Usage =
+
+== hexagonlib parts ==
+The hexagonlib is split into two different parts, the *base library* which contains classes that are available for any Flash-related runtime, and the *AIR library* which contains classes that are only available for the Adobe AIR runtime. You can use only the base library if nothing else is required but to use the AIR library you also have to link the base library since the AIR library is based on it.
+
+== Setting the stage reference ==
+Many of the classes in hexagonlib require a reference to the stage of your main SWF. To use these classes you need to set the stage property of the singleton StageReference class. It is recommended to do this as early as the stage is available in your application, e.g.:
+
+`package 
+{
+	import flash.display.Sprite;
+	import com.hexagonstar.display.StageReference;
+	
+	public class Main extends Sprite
+	{
+		public function Main()
+		{
+			StageReference.stage = stage;
+		}
+	}
+}`
+
+
+= Details =
+
+Add your content here.  Format your content with:
+  * Text in *bold* or _italic_
+  * Headings, paragraphs, and lists
+  * Automatic links to other wiki pages
