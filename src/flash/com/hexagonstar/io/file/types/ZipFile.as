@@ -27,7 +27,6 @@
  */
 package com.hexagonstar.io.file.types
 {
-
 	import com.hexagonstar.algo.compr.Inflate;
 	import com.hexagonstar.data.constants.Status;
 	import com.hexagonstar.data.constants.ZipConstants;
@@ -42,21 +41,38 @@ package com.hexagonstar.io.file.types
 	import flash.utils.Dictionary;
 	import flash.utils.Endian;
 	
+	
 	/**
-	 * The ZipFile represents an archive of compressed files. It can be used to
-	 * load a Zip file into memory and unpack it's contents or to create a Zip
-	 * file object to which data is added and compressed so it can later be stored
-	 * to disk.
+	 * Dispatched after the zip file has been loaded and is ready for use.
 	 * 
-	 * However this class does not allow to use the same instance for both loading
-	 * and creation of Zip files, i.e. you cannot load a Zip file from disk and
-	 * then add new data to it. You have to use two different ZipFile instances
-	 * for this.
+	 * @eventType flash.events.Event.COMPLETE
+	 */
+	[Event(name="complete", type="flash.events.Event.COMPLETE")]
+	
+	/**
+	 * Dispatched after a zipped file which has been requested with <code>getFile()</code>
+	 * has been loaded from the ZipFile and is ready to be used.
 	 * 
-	 * Limitations:
-	 * - No Encyption support
-	 * - Standard character file paths only
-	 * - Deflate and Store methods only
+	 * @eventType com.hexagonstar.event.FileIOEvent.COMPLETE
+	 */
+	[Event(name="fileIOComplete", type="com.hexagonstar.event.FileIOEvent.COMPLETE")]
+	
+	
+	/**
+	 * The ZipFile represents an archive of compressed files. It can be used to load a zip
+	 * file into memory and unpack it's contents or to create a zip file object to which
+	 * data is added and compressed so it can later be stored to disk.<br>
+	 * 
+	 * <p>However this class does not allow to use the same instance for both loading and
+	 * creation of zip files, i.e. you cannot load a zip file from disk and then add new
+	 * data to it. You have to use two different ZipFile objects for this.</p><br>
+	 * 
+	 * <b>Limitations:</b>
+	 * <ul>
+	 * <li>No Encyption support</li>
+	 * <li>Standard ASCII character file paths only</li>
+	 * <li>Deflate compression and Store methods only</li>
+	 * </ul>
 	 */
 	public class ZipFile extends BinaryFile implements IFile
 	{
@@ -64,14 +80,22 @@ package com.hexagonstar.io.file.types
 		// Properties
 		//-----------------------------------------------------------------------------------------
 		
+		/** @private */
 		private var _fileList:Array;
+		/** @private */
 		private var _fileTable:Dictionary;
+		/** @private */
 		private var _locOffsetTable:Dictionary;
+		/** @private */
 		private var _fileCount:uint;
+		/** @private */
 		private var _hasLoadedData:Boolean;
 		
+		/** @private */
 		private var _generator:ZipGenerator;
+		/** @private */
 		private var _autoCompression:Boolean;
+		/** @private */
 		private var _comment:String;
 		
 		
@@ -82,14 +106,14 @@ package com.hexagonstar.io.file.types
 		/**
 		 * Creates a new instance of the class.
 		 * 
-		 * @param path The path of the file that this File object is used for.
+		 * @param path The path of the file that this ZipFile object is used for.
 		 * @param id An optional ID for the file.
-		 * @param priority Optional load priority for the file. Used for loading
-		 *        with the BulkLoader class.
-		 * @param weight Optional weight for the file. Used for weighted loading
-		 *        with the BulkLoader class.
-		 * @param comment Optional text used as the Zip file's comment, only used
-		 *        for zip generation.
+		 * @param priority Optional load priority for the file. Used for loading with the
+		 *            BulkLoader.
+		 * @param weight Optional weight for the file. Used for weighted loading with the
+		 *            BulkLoader.
+		 * @param comment Optional text used as the zip file's comment, only used for zip
+		 *            generation.
 		 */
 		public function ZipFile(path:String = null, id:String = null, priority:Number = NaN,
 			weight:int = 1, comment:String = null)
@@ -115,30 +139,32 @@ package com.hexagonstar.io.file.types
 		//-----------------------------------------------------------------------------------------
 		
 		/**
-		 * <p>Gets the file that is contained in the zip file under the specified path
-		 * as an instance of IFile. Use this method to quickly obtain a resource
-		 * from the zip file in it's correctly typed IFile implementing class.</p>
+		 * Gets the file object that is contained in the zip file under the specified path as
+		 * an instance of a file type class that implements IFile. Use this method to quickly
+		 * obtain a packed file from the zip file in it's correctly typed File class.<br>
 		 * 
-		 * The type of the resulting file is determined by the file extension of
-		 * the file's path (see FileTypes class for a list of default extensions).
-		 * The resulting file contains the unpacked data from the zipped file that
-		 * is stored under the path in the zip file.
+		 * <p>The type of the resulting file is determined by the file extension of the file's
+		 * path (see <code>FileTypes</code> class for a list of default extensions). The
+		 * resulting file contains the unpacked data from the zipped file that is stored under
+		 * the path in the zip file.</p><br>
 		 * 
-		 * If the specified path is not found in the zip file or the specified path's
-		 * entry is a directory then false is returned. If the path was found in the
-		 * zip file but it's extension is not known a BinaryFile is created by default.
+		 * <p>If the specified path is not found in the zip file or the specified path's entry
+		 * is a directory, <code>null</code> is returned. If the path was found in the zip
+		 * file but it's extension is not known, a BinaryFile is created by default.</p><br>
 		 * 
-		 * This method returns an instance of type IFile. However as it cannot be
-		 * assured that the file's data is fully loaded after the method returns you
-		 * should instead listen to the FileIOEvent.COMPLETE event broadcasted by this
-		 * class which is fired after the file has been fully loaded. The event then
-		 * contains a reference to the loaded file.
+		 * <p>This method returns an object of type IFile. However as it cannot be assured
+		 * that the file's data is fully loaded after the method returns, you should instead
+		 * listen to the <code>FileIOEvent.COMPLETE</code> event broadcasted by this class
+		 * which is fired after the file has been fully loaded. The event then contains a
+		 * reference to the loaded file.</p>
 		 * 
 		 * @see com.hexagonstar.io.file.FileTypes
+		 * @see com.hexagonstar.io.file.types.IFile
 		 * 
-		 * @param path The path of a file stored inside the zip file of which a
-		 *        new instance of type IFile should be loaded.
-		 * @return An instance of type IFile or null.
+		 * @param path The path of a file stored inside the zip file of which a new instance
+		 *            of type IFile should be loaded. The path must be relative and exacrly
+		 *            match that of the file stored inside the zip.
+		 * @return An object of type IFile or <code>null</code>.
 		 */
 		public function getFile(path:String):IFile
 		{
@@ -172,12 +198,17 @@ package com.hexagonstar.io.file.types
 		
 		
 		/**
-		 * Gets a ByteArray with the uncompressed data from the file that is stored
-		 * in the ZipFile under the specified path.
+		 * Gets a ByteArray with the uncompressed data from the file that is contained in the
+		 * ZipFile under the specified path.<br>
 		 * 
-		 * @param path The path of a file stored inside the zip file from which the
-		 *        uncompressed data should be obtained.
-		 * @return A byte array, or null if the requested file does not exist.
+		 * <p>If the requested data is compressed with an unsupported algorythm (i.e. not
+		 * Deflate and not Stored), <code>null</code> is returned. You can check the
+		 * <code>valid</code> and <code>status</code> properties to check for any errors.</p>
+		 * 
+		 * @param path The path of a file contained inside the zip file from which the
+		 *            uncompressed data should be returned.
+		 * @return A byte array, or <code>null</code> if the requested file was not found
+		 *         inside the zip file.
 		 */
 		public function getData(path:String):ByteArray
 		{
@@ -219,14 +250,15 @@ package com.hexagonstar.io.file.types
 		
 		
 		/**
-		 * Returns the zip entry that is stored in the zip file under the specified
-		 * path. If there is no entry stored under the path null is returned instead.
+		 * Returns the zip entry that is stored in the zip file under the specified path. If
+		 * there is no entry stored under the path, <code>null</code> is returned instead.
 		 * 
 		 * @see com.hexagonstar.io.file.types.ZipEntry
 		 * 
-		 * @param path The path of the zip entry. May contain directory components
-		 *        separated by slashes ("/").
-		 * @return The zip entry, or null if no entry with that path exists in the zip.
+		 * @param path The path of the zip entry. May contain directory components separated
+		 *            by slashes ("/").
+		 * @return The zip entry, or <code>null</code> if no entry with that path exists in
+		 *         the zip.
 		 */
 		public function getEntry(path:String):ZipEntry
 		{
@@ -235,14 +267,18 @@ package com.hexagonstar.io.file.types
 		
 		
 		/**
-		 * Adds a new file entry for storing inside the ZipFile. This operation adds
-		 * a newly created ZippedFile instance with the specified path and data to
-		 * the ZipFile. Note that this operation only works on a fresh ZipFile instance
-		 * into that no data has been loaded before.
+		 * Adds a new entry for storing data inside the ZipFile. This operation adds a newly
+		 * created ZipEntry object with the specified path and data to the ZipFile.<br>
+		 * 
+		 * <p>Note that this operation only works on a fresh ZipFile instance into that no
+		 * data has been loaded before.</p>
+		 * 
+		 * @see com.hexagonstar.io.file.types.ZipEntry
 		 * 
 		 * @param path The path under which to store the file data inside the ZipFile.
-		 * @param data The file data to be compressed and/or stored.
-		 * @return true if file entry was added successful, false if not.
+		 * @param data The file data to be compressed or stored.
+		 * @return <code>true</code> if the file entry was added successfully,
+		 *         <code>false</code> if not.
 		 */
 		public function addFile(path:String, data:ByteArray):Boolean
 		{
@@ -251,7 +287,19 @@ package com.hexagonstar.io.file.types
 		
 		
 		/**
-		 * Adds an empty folder to the ZipFile.
+		 * Adds a new entry for storing an empty folder in the ZipFile. This operation adds a
+		 * newly created ZipEntry object to the ZipFile that represents a folder which
+		 * contains no files.<br>
+		 * 
+		 * <p>An empty folder is recognized by having a path that ends with a slash ("/") on
+		 * the right side. If the given path doesn't end with a slash this method will add one
+		 * automatically to the end of the string.</p>
+		 * 
+		 * @see com.hexagonstar.io.file.types.ZipEntry
+		 * 
+		 * @param path The path under which to store the empty folder inside the ZipFile.
+		 * @return <code>true</code> if the file entry was added successfully,
+		 *         <code>false</code> if not.
 		 */
 		public function addFolder(path:String):Boolean
 		{
@@ -261,27 +309,29 @@ package com.hexagonstar.io.file.types
 		
 		
 		/**
-		 * Adds a new file entry for storing inside the zip file provided by the
-		 * specified file. This operation should be used to quickly copy a zip entry
-		 * object from one zip file to a new zip file since no data is contained
-		 * in a zip entry object which was not obtained from a zip file. For creating
-		 * completely fresh zip files with new data use the addFile method.
+		 * Adds a new entry for storing data inside the zip file provided by the specified zip
+		 * entry. This operation should be used to quickly copy a zip entry object from one
+		 * zip file to a new zip file since no data is contained in a zip entry object which
+		 * was not obtained from a zip file. For creating completely new zip files with new
+		 * data use the addFile method.
 		 * 
-		 * @param file The ZippedFile to add to the ZipFile.
-		 * @return true if file entry was added successful, false if not.
+		 * @see com.hexagonstar.io.file.types.ZipEntry
+		 * 
+		 * @param file The ZipEntry to add to the ZipFile.
+		 * @return <code>true</code> if the entry was added successfully, <code>false</code>
+		 *         if not.
 		 */
 		public function addEntry(file:ZipEntry):Boolean
 		{
-			/* No go if we already got content loaded from a file (would mean we
-			 * have to store the central dir buffer separately and attach it back
-			 * on anytime a file is added which is possible but I don't feel like
-			 * that today! */
+			/* No go if we already got content loaded from a file or the ZipFile has
+			 * been finalized (which would mean we have to store the central dir buffer
+			 * separately and attach it back on anytime a file. */
 			if (_hasLoadedData || (_generator && _generator.finalized))
 			{
 				return false;
 			}
 			
-			/* Only instantiate when first needed */
+			/* Only instantiate when first needed. */
 			if (!_generator)
 			{
 				_generator = new ZipGenerator(this, _content, _fileList, _autoCompression);
@@ -292,9 +342,13 @@ package com.hexagonstar.io.file.types
 		
 		
 		/**
-		 * Finalizes the ZipFile if file entries were added manually. Call this
-		 * method after all file entries were added to generate the Zip's central
-		 * directory. After calling this method yuo cannot add any more entries.
+		 * Finalizes the ZipFile after zip entries were added manually. You must call this
+		 * method after all zip entries were added to generate a valid zip format that can be
+		 * stored as a standard zip file. After calling this method yuo cannot add any more
+		 * entries to this zip file.<br>
+		 * 
+		 * <p>A call to this method has no effect if the zip file was loaded or contains no
+		 * zip entries.</p>
 		 */
 		public function finalize():void
 		{
@@ -342,6 +396,8 @@ package com.hexagonstar.io.file.types
 		
 		/**
 		 * An array of ZipEntry objects with all zip entries contained in this zip file.
+		 * 
+		 * @see com.hexagonstar.io.file.types.ZipEntry
 		 */
 		public function get entries():Array
 		{
@@ -351,7 +407,7 @@ package com.hexagonstar.io.file.types
 		
 		/**
 		 * The number of zipped files in this zip file. This does not include folders,
-		 * Use folderCount to get the amount of folders in the ZipFile.
+		 * Use <code>folderCount</code> to get the amount of folders in the ZipFile.
 		 */
 		public function get fileCount():int
 		{
@@ -365,7 +421,7 @@ package com.hexagonstar.io.file.types
 		
 		
 		/**
-		 * The number of zipped folders in this zip file.
+		 * The number of empty folders that are contained in this zip file.
 		 */
 		public function get folderCount():int
 		{
@@ -379,7 +435,7 @@ package com.hexagonstar.io.file.types
 		
 		
 		/**
-		 * The uncompressed size of the Zip file.
+		 * The uncompressed size of the zip file.
 		 */
 		override public function get size():uint
 		{
@@ -390,6 +446,7 @@ package com.hexagonstar.io.file.types
 			}
 			return s;
 		}
+		/** @private */
 		override public function set size(v:uint):void
 		{
 			/* should not be able to set the size, which is
@@ -404,6 +461,7 @@ package com.hexagonstar.io.file.types
 		{
 			return _size;
 		}
+		/** @private */
 		public function set compressedSize(v:uint):void
 		{
 			_size = v;
@@ -411,7 +469,7 @@ package com.hexagonstar.io.file.types
 		
 		
 		/**
-		 * The compression ratio in percent.
+		 * The compression ratio of the zip file in percent.
 		 */
 		public function get ratio():Number
 		{
@@ -419,6 +477,14 @@ package com.hexagonstar.io.file.types
 		}
 		
 		
+		/**
+		 * Determines if 'intelligent' compression is used. If this property is
+		 * <code>true</code> the zip file will only compress the data of an added entry if
+		 * it's compressed size is smaller than it's uncompressed size. If it's resulting
+		 * compressed size turns out to be larger or equal to it's uncompressed size, the data
+		 * will only be stored. <p>If set to <code>false</code>, any added data is compressed
+		 * regardless of it's resulting size.</p>
+		 */
 		public function get autoCompression():Boolean
 		{
 			return _autoCompression;
@@ -430,8 +496,8 @@ package com.hexagonstar.io.file.types
 		
 		
 		/**
-		 * @inheritDoc
-		 * Used only by Loader to set loaded zip data!
+		 * Sets the content data of the zip file. This is used by a loader to provide the
+		 * loaded zip data.
 		 */
 		override public function set contentAsBytes(v:ByteArray):void
 		{
@@ -464,6 +530,7 @@ package com.hexagonstar.io.file.types
 		//-----------------------------------------------------------------------------------------
 		
 		/**
+		 * Invoked after a requested, zipped file has received it's content data.
 		 * @private
 		 */
 		private function onFileReady(e:Event):void
@@ -479,7 +546,7 @@ package com.hexagonstar.io.file.types
 		//-----------------------------------------------------------------------------------------
 		
 		/**
-		 * Reads the central directory of a zip file and fills the zippedFiles array.
+		 * Reads the central directory of a zip file and fills the file list array.
 		 * This is called exactly once when first needed.
 		 * 
 		 * @private
@@ -488,14 +555,6 @@ package com.hexagonstar.io.file.types
 		private function readCEN():Boolean
 		{
 			readEND();
-			
-			/* Debug */
-			//var pos:Number = _content.position;
-			//var t:ByteArray = new ByteArray();
-			//t.endian = Endian.LITTLE_ENDIAN;
-			//_content.readBytes(t, 0, ZipFile.CENHDR);
-			//_content.position = pos;
-			//Debug.hexDump(t);
 			
 			for (var i:int = 0; i < _fileCount; i++)
 			{
@@ -506,7 +565,7 @@ package com.hexagonstar.io.file.types
 				var sig:uint = tmp.readUnsignedInt();
 				if (sig != ZipConstants.CENSIG)
 				{
-					error("readCENEntries: Invalid CEN header (bad signature: 0x"
+					error("Invalid CEN header in zip file <" + path + "> (bad signature: 0x"
 						+ sig.toString(16) + ").");
 					return false;
 				}
@@ -517,7 +576,7 @@ package com.hexagonstar.io.file.types
 				var len:uint = tmp.readUnsignedShort();
 				if (len == 0)
 				{
-					error("readCENEntries: Missing zipped file path.");
+					error("Missing zip entry file path in zip file <" + path + ">.");
 					return false;
 				}
 				
@@ -537,7 +596,7 @@ package com.hexagonstar.io.file.types
 				e.flag = tmp.readUnsignedShort();
 				if ((e.flag & 1) == 1)
 				{
-					error("readCENEntries: Encrypted zip entry not supported.");
+					error("Encrypted zip entry not supported in zip file <" + path + ">.");
 					return false;
 				}
 				e.compressionMethod = tmp.readUnsignedShort();
@@ -554,12 +613,13 @@ package com.hexagonstar.io.file.types
 				tmp.position = ZipConstants.CENOFF;
 				_locOffsetTable[e.path] = tmp.readUnsignedInt();
 			}
+			
 			return true;
 		}
 		
 		
 		/**
-		 * Reads the total number of zipped files in the central dir and positions
+		 * Reads the total number of zip entries in the central dir and positions
 		 * the buffer at the start of the central directory.
 		 * 
 		 * @private
@@ -619,7 +679,7 @@ package com.hexagonstar.io.file.types
 				}
 			}
 			
-			error("findEND: Could not find the end header.");
+			error("Could not find END header of zip file <" + path + ">.");
 			return 0;
 		}
 		
@@ -641,7 +701,7 @@ package com.hexagonstar.io.file.types
 		internal function error(msg:String):void
 		{
 			_valid = false;
-			_status = "ERROR - " + msg;
+			_status = msg;
 		}
 	}
 }
