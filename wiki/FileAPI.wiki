@@ -1,5 +1,5 @@
 #summary Explains the hexagonlib file API classes.
 
-= Introduction =
+= File API Introduction =
 
-hexagonlib provides a collection of file classes to comfortably load and manage any number of files.
+hexagonlib provides a collection of file classes to comfortably load and manage any number of files. The file API resides in the *com.hexagonstar.io.file* package and allows you to create file objects that contain the filesystem path to their physical files and then load these files with any of the hexagonlib file loader classes like the _!BulkLoader_ or the _!ZipLoader_.
