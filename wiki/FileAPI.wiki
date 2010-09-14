@@ -4,9 +4,15 @@
 
 hexagonlib provides a collection of file classes to comfortably load and manage any number of files. The file API resides in the *com.hexagonstar.io.file* package and allows you to create file objects that contain the filesystem path to their physical files and then load these files with any of the hexagonlib file loader classes like the _!BulkLoader_ or the _!ZipLoader_.
 
-To create a file object you choose any of the classes in the *com.hexagonstar.io.file.types* package that reflects the base data type of the physical file you want to load like in the following example which creates XMLFile and ImageFile instances:
+To create a file object you choose any of the classes in the *com.hexagonstar.io.file.types* package that reflects the base data type of the physical file you want to load like in the following example which creates instances of _XMLFile_ and _!ImageFile_:
 
 {{{
 var xmlFile:XMLFile = new XMLFile("path/to/the/example.xml");
-var imageFile:ImageFile= new ImageFile("path/to/the/example.png");
+var imageFile:ImageFile = new ImageFile("path/to/the/example.png");
 }}}
+
+File type classes provide a unified interface to access information about the file and the loaded content. You can use the _content_ property to access the loaded file content in untyped form or use any of the accessors which a specific to the file type class but provide the content data strong-typed as for example the _contentAsString_ property of the _!TextFile_ class.
+
+----
+
+= Using the BulkLoader =
