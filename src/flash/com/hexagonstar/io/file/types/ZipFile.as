@@ -63,7 +63,7 @@ package com.hexagonstar.io.file.types
 	 * file into memory and unpack it's contents or to create a zip file object to which
 	 * data is added and compressed so it can later be stored to disk.<br>
 	 * 
-	 * <p>However this class does not allow to use the same instance for both loading and
+	 * <p>NOTE: This class does not allow to use the same instance for both loading and
 	 * creation of zip files, i.e. you cannot load a zip file from disk and then add new
 	 * data to it. You have to use two different ZipFile objects for this.</p><br>
 	 * 
