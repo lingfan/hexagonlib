@@ -27,9 +27,23 @@
  */
 package com.hexagonstar.io.file.types
 {
-	
 	/**
-	 * TODO Add better description!
+	 * Dispatched after the file's content has been loaded. This event is always
+	 * broadcasted after the file finished loading, regardless whether it's content data
+	 * could be parsed sucessfully or not. Use the <code>valid</code> property after the
+	 * file has been loaded to check if the content is available.
+	 * 
+	 * @eventType flash.events.Event.COMPLETE
+	 */
+	[Event(name="complete", type="flash.events.Event.COMPLETE")]
+	 
+	 
+	/**
+	 * The TextFile is a file type implementation that can be used to load any kind of
+	 * text-based file. You can use the <code>contentAsString</code> property to return
+	 * the loaded text typed as a String.
+	 * 
+	 * @see com.hexagonstar.io.file.types.IFile
 	 */
 	public class TextFile extends BinaryFile implements IFile
 	{
@@ -38,12 +52,14 @@ package com.hexagonstar.io.file.types
 		//-----------------------------------------------------------------------------------------
 		
 		/**
-		 * Creates a new instance.
+		 * Creates a new instance of the file class.
 		 * 
-		 * @param path
-		 * @param id
-		 * @param priority
-		 * @param weight
+		 * @param path The path of the file that this file object is used for.
+		 * @param id An optional ID for the file.
+		 * @param priority An optional load priority for the file. Used for loading with the
+		 *            BulkLoader class.
+		 * @param weight An optional weight for the file. Used for weighted loading with the
+		 *            BulkLoader class.
 		 */
 		public function TextFile(path:String = null, id:String = null, priority:Number = NaN,
 			weight:int = 1)
@@ -75,7 +91,7 @@ package com.hexagonstar.io.file.types
 		
 		
 		/**
-		 * The TextFile content as a String.
+		 * The TextFile content, as a String.
 		 */
 		public function get contentAsString():String
 		{

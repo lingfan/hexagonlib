@@ -57,9 +57,9 @@ package com.hexagonstar.io.file.types
 		private var _zipFile:ZipFile;
 		
 		/** @private */
-		private var _size:uint;
+		private var _size:Number;
 		/** @private */
-		private var _compressedSize:uint;
+		private var _compressedSize:Number;
 		/** @private */
 		private var _crc:uint;
 		/** @private */
@@ -141,11 +141,11 @@ package com.hexagonstar.io.file.types
 		/**
 		 * The size of the zip entry's uncompressed data.
 		 */
-		public function get size():uint
+		public function get size():Number
 		{
 			return _size;
 		}
-		public function set size(v:uint):void
+		public function set size(v:Number):void
 		{
 			_size = v;
 		}
@@ -154,11 +154,11 @@ package com.hexagonstar.io.file.types
 		/**
 		 * The size of the zip entry's compressed data.
 		 */
-		public function get compressedSize():uint
+		public function get compressedSize():Number
 		{
 			return _compressedSize;
 		}
-		public function set compressedSize(v:uint):void
+		public function set compressedSize(v:Number):void
 		{
 			_compressedSize = v;
 		}
