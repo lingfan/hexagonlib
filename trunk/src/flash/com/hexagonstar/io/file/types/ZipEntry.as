@@ -27,16 +27,21 @@
  */
 package com.hexagonstar.io.file.types
 {
-
 	import com.hexagonstar.util.MathUtil;
 
 	import flash.utils.ByteArray;
 	
+	
 	/**
-	 * A zip entry represents a file that is contained inside a zip file. It is not
-	 * loaded manually by adding it to a BulkLoader. Instead a zip file can be loaded
-	 * with a BulkLoader and then zip entry objects can be obtained from the loaded
-	 * zip file.
+	 * A zip entry represents a file that is contained inside a loaded or generated zip
+	 * file. The ZipFile class and the ZipLoader class use zip entries to manage the files
+	 * that are packed inside the zip file they've opened.<br>
+	 * 
+	 * <p>You normally don't need to use this class directly unless you want to add zip
+	 * entries manually to a new ZipFile object.</p>
+	 * 
+	 * @see com.hexagonstar.io.file.types.ZipFile
+	 * @see com.hexagonstar.io.file.ZipLoader
 	 */
 	public class ZipEntry
 	{
@@ -44,22 +49,35 @@ package com.hexagonstar.io.file.types
 		// Properties
 		//-----------------------------------------------------------------------------------------
 		
+		/** @private */
 		private var _path:String;
+		/** @private */
 		private var _data:ByteArray;
+		/** @private */
 		private var _zipFile:ZipFile;
 		
+		/** @private */
 		private var _size:uint;
+		/** @private */
 		private var _compressedSize:uint;
+		/** @private */
 		private var _crc:uint;
+		/** @private */
 		private var _method:int;
+		/** @private */
 		private var _extra:ByteArray;
+		/** @private */
 		private var _comment:String;
 		
 		/* The following flags are used only by Zip Generator */
+		/** @private */
 		public var dostime:uint;
-		public var flag:uint;			// bit flags
-		public var version:uint;		// version needed to extract
-		public var offset:uint;			// offset of loc header
+		/** @private */
+		public var flag:uint;		// bit flags
+		/** @private */
+		public var version:uint;	// version needed to extract
+		/** @private */
+		public var offset:uint;		// offset of loc header
 		
 		
 		//-----------------------------------------------------------------------------------------
@@ -67,13 +85,14 @@ package com.hexagonstar.io.file.types
 		//-----------------------------------------------------------------------------------------
 		
 		/**
-		 * Creates a new instance.
+		 * Creates a new instance of ZipEntry.
 		 * 
 		 * @param path The path of the zip entry.
-		 * @param data Content data of the zip entry. Only needs to be set if this
-		 *        file is created manually. For any zip entry that is fetched from a
-		 *        loaded zip file the zip file will care about providing the data.
-		 * @param zipFile A reference to the zip file to which this file belongs.
+		 * @param data The content data of the zip entry. Only needs to be set if this file is
+		 *            created manually. For any zip entry that is fetched from a loaded zip
+		 *            file the zip file will care about providing the data.
+		 * @param zipFile A reference to the zip file to which this file belongs. This is used
+		 *            by the ZipFile class.
 		 */
 		public function ZipEntry(path:String, data:ByteArray = null, zipFile:ZipFile = null)
 		{
@@ -93,7 +112,7 @@ package com.hexagonstar.io.file.types
 		//-----------------------------------------------------------------------------------------
 		
 		/**
-		 * Path of the zipped file.
+		 * The path of the zip entry.
 		 */
 		public function get path():String
 		{
@@ -120,7 +139,7 @@ package com.hexagonstar.io.file.types
 		
 		
 		/**
-		 * Size of the uncompressed data.
+		 * The size of the zip entry's uncompressed data.
 		 */
 		public function get size():uint
 		{
@@ -133,7 +152,7 @@ package com.hexagonstar.io.file.types
 		
 		
 		/**
-		 * The size of the compressed data.
+		 * The size of the zip entry's compressed data.
 		 */
 		public function get compressedSize():uint
 		{
@@ -146,19 +165,22 @@ package com.hexagonstar.io.file.types
 		
 		
 		/**
-		 * The compression ratio in percent.
-		 * TODO change ratio to return the inverted % value.
+		 * The compression ratio of the zip entry in percent. The ratio represents by how much
+		 * percent a zip entry could be compressed. The higher this value, the more the data
+		 * is compressed.
 		 */
 		public function get ratio():Number
 		{
 			if (isDirectory) return 0;
 			if (_compressedSize + _size == 0) return 0;
-			return MathUtil.round((_compressedSize / _size) * 100, 1);
+			var r:Number = MathUtil.round((100 - (_compressedSize / _size) * 100), 1);
+			if (r < 0) return 0;
+			return r;
 		}
 		
 		
 		/**
-		 * The CRC of the uncompressed data.
+		 * The CRC32 checksum of the zip entry's uncompressed data.
 		 */
 		public function get crc32():uint
 		{
@@ -171,7 +193,7 @@ package com.hexagonstar.io.file.types
 		
 		
 		/**
-		 * Convenience getter to return the CRC checksum as a hexadecimal string.
+		 * A convenience getter to return the CRC32 checksum as a hexadecimal string.
 		 */
 		public function get crc32hex():String
 		{
@@ -180,7 +202,7 @@ package com.hexagonstar.io.file.types
 		
 		
 		/**
-		 * The compression method. Only DEFLATED and STORED are supported.
+		 * The zip entry's compression method. Only DEFLATE and STORE are supported.
 		 */
 		public function get compressionMethod():int
 		{
@@ -193,7 +215,7 @@ package com.hexagonstar.io.file.types
 		
 		
 		/**
-		 * The extra data.
+		 * The zip entry's extra data.
 		 */
 		public function get extra():ByteArray
 		{
@@ -206,7 +228,7 @@ package com.hexagonstar.io.file.types
 		
 		
 		/**
-		 * The comment data.
+		 * The zip entry's comment data.
 		 */
 		public function get comment():String
 		{
@@ -219,21 +241,22 @@ package com.hexagonstar.io.file.types
 		
 		
 		/**
-		 * The content of the zipped file.
+		 * The content data of the zip entry.
 		 */
 		public function get data():ByteArray
 		{
-			/* ZippedFile has it's own data */
+			/* The zip entry has it's own data. */
 			if (_data) return _data;
-			/* ZippedFile is loaded from zip file and it's data is stored in ZipFile */
+			/* The zip entry is loaded from a zip file and it's data is stored in the zip file */
 			if (_zipFile) return _zipFile.getData(_path);
 			return null;
 		}
 		
 		
 		/**
-		 * True, if the entry is a directory. This is solely determined by the name,
-		 * a trailing slash '/' marks a directory.
+		 * Determines if the zip entry is an empty directory stored in the container zip file.
+		 * This is solely determined by the path string, a trailing slash "/" marks an empty
+		 * directory.
 		 */
 		public function get isDirectory():Boolean
 		{
