@@ -1,0 +1,5 @@
+#summary Explains the hexagonlib file API classes.
+
+= Introduction =
+
+hexagonlib provides a collection of file classes to comfortably load and manage any number of files.
