@@ -43,7 +43,10 @@ package com.hexagonstar.io.file.types
 	
 	
 	/**
-	 * Dispatched after the zip file has been loaded and is ready for use.
+	 * Dispatched after the file's content has been loaded. This event is always
+	 * broadcasted after the file finished loading, regardless whether it's content data
+	 * could be parsed sucessfully or not. Use the <code>valid</code> property after the
+	 * file has been loaded to check if the content is available.
 	 * 
 	 * @eventType flash.events.Event.COMPLETE
 	 */
@@ -73,6 +76,10 @@ package com.hexagonstar.io.file.types
 	 * <li>Standard ASCII character file paths only</li>
 	 * <li>Deflate compression and Store methods only</li>
 	 * </ul>
+	 * 
+	 * @see com.hexagonstar.io.file.types.IFile
+	 * @see com.hexagonstar.io.file.types.ZipEntry
+	 * @see com.hexagonstar.io.file.types.ZipGenerator
 	 */
 	public class ZipFile extends BinaryFile implements IFile
 	{
@@ -437,9 +444,9 @@ package com.hexagonstar.io.file.types
 		/**
 		 * The uncompressed size of the zip file.
 		 */
-		override public function get size():uint
+		override public function get size():Number
 		{
-			var s:uint = 0;
+			var s:Number = 0;
 			for (var i:int = 0; i < _fileList.length; i++)
 			{
 				s += ZipEntry(_fileList[i]).size;
@@ -447,7 +454,7 @@ package com.hexagonstar.io.file.types
 			return s;
 		}
 		/** @private */
-		override public function set size(v:uint):void
+		override public function set size(v:Number):void
 		{
 			/* should not be able to set the size, which is
 			 * calculated from the zipped files inside it! */
@@ -457,12 +464,12 @@ package com.hexagonstar.io.file.types
 		/**
 		 * The size of the compressed zip file.
 		 */
-		public function get compressedSize():uint
+		public function get compressedSize():Number
 		{
 			return _size;
 		}
 		/** @private */
-		public function set compressedSize(v:uint):void
+		public function set compressedSize(v:Number):void
 		{
 			_size = v;
 		}

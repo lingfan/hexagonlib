@@ -27,7 +27,6 @@
  */
 package com.hexagonstar.io.file.types
 {
-
 	import com.hexagonstar.data.constants.Status;
 	import com.hexagonstar.util.EnvUtil;
 
@@ -41,7 +40,22 @@ package com.hexagonstar.io.file.types
 
 	
 	/**
-	 * TODO Add better description!
+	 * Dispatched after the file's content has been loaded. This event is always
+	 * broadcasted after the file finished loading, regardless whether it's content data
+	 * could be parsed sucessfully or not. Use the <code>valid</code> property after the
+	 * file has been loaded to check if the content is available.
+	 * 
+	 * @eventType flash.events.Event.COMPLETE
+	 */
+	[Event(name="complete", type="flash.events.Event.COMPLETE")]
+	
+	
+	/**
+	 * The SWFFile is a file type implementation that can be used to load SWF files. It
+	 * uses the AS3 Loader class to load the SWF file and then provides getters to obtain
+	 * a MovieClip of the Loader content or the Loader directly.
+	 * 
+	 * @see com.hexagonstar.io.file.types.IFile
 	 */
 	public class SWFFile extends BinaryFile implements IFile
 	{
@@ -49,6 +63,7 @@ package com.hexagonstar.io.file.types
 		// Properties
 		//-----------------------------------------------------------------------------------------
 		
+		/** @private */
 		protected var _loader:Loader;
 		
 		
@@ -57,11 +72,14 @@ package com.hexagonstar.io.file.types
 		//-----------------------------------------------------------------------------------------
 		
 		/**
-		 * Creates a new ImageFile instance.
-		 * @param path
-		 * @param id
-		 * @param priority
-		 * @param weight
+		 * Creates a new instance of the file class.
+		 * 
+		 * @param path The path of the file that this file object is used for.
+		 * @param id An optional ID for the file.
+		 * @param priority An optional load priority for the file. Used for loading with the
+		 *            BulkLoader class.
+		 * @param weight An optional weight for the file. Used for weighted loading with the
+		 *            BulkLoader class.
 		 */
 		public function SWFFile(path:String = null, id:String = null, priority:Number = NaN,
 			weight:int = 1)
@@ -105,7 +123,7 @@ package com.hexagonstar.io.file.types
 				new ApplicationDomain(ApplicationDomain.currentDomain));
 			
 			/* allowCodeImport is only available for AIR and throws an exception if
-			 * we don't check for AIR! TODO Is this check safe enough? */
+			 * we don't check for AIR! TODO Make sure that this check is safe enough! */
 			if (EnvUtil.isAIRApplication())
 			{
 				try
@@ -143,7 +161,7 @@ package com.hexagonstar.io.file.types
 		
 		
 		/**
-		 * The SWFFile as a MovieClip.
+		 * The SWFFile content, as a MovieClip.
 		 */
 		public function get contentAsMovieClip():MovieClip
 		{
@@ -153,7 +171,7 @@ package com.hexagonstar.io.file.types
 		
 		
 		/**
-		 * The Loader object that loaded the SWFFile internally.
+		 * The Loader object that loaded the SWFFile content internally.
 		 */
 		public function get loader():Loader
 		{

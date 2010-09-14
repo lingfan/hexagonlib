@@ -27,7 +27,6 @@
  */
 package com.hexagonstar.io.file.types
 {
-
 	import com.hexagonstar.data.constants.Status;
 	import com.hexagonstar.exception.IllegalArgumentException;
 	import com.hexagonstar.exception.IllegalOperationException;
@@ -38,7 +37,23 @@ package com.hexagonstar.io.file.types
 
 	
 	/**
-	 * TODO Add better description!
+	 * Dispatched after the file's content has been loaded. This event is always
+	 * broadcasted after the file finished loading, regardless whether it's content data
+	 * could be parsed sucessfully or not. Use the <code>valid</code> property after the
+	 * file has been loaded to check if the content is available.
+	 * 
+	 * @eventType flash.events.Event.COMPLETE
+	 */
+	[Event(name="complete", type="flash.events.Event.COMPLETE")]
+	
+	
+	/**
+	 * The SoundFile is a file type implementation that can be used to load sound file
+	 * formats that are supported by Flash (MP3 only, wohoo!). It uses the AS3 Sound class
+	 * to load the sound file after which the sound object can be directly obtained from
+	 * the SoundFile.
+	 * 
+	 * @see com.hexagonstar.io.file.types.IFile
 	 */
 	public class SoundFile extends BinaryFile implements IFile
 	{
@@ -46,6 +61,7 @@ package com.hexagonstar.io.file.types
 		// Properties
 		//-----------------------------------------------------------------------------------------
 		
+		/** @private */
 		protected var _sound:Sound;
 		
 		
@@ -54,12 +70,14 @@ package com.hexagonstar.io.file.types
 		//-----------------------------------------------------------------------------------------
 		
 		/**
-		 * Creates a new instance.
+		 * Creates a new instance of the sound file class.
 		 * 
-		 * @param path
-		 * @param id
-		 * @param priority
-		 * @param weight
+		 * @param path The path of the file that this file object is used for.
+		 * @param id An optional ID for the file.
+		 * @param priority An optional load priority for the file. Used for loading with the
+		 *            BulkLoader class.
+		 * @param weight An optional weight for the file. Used for weighted loading with the
+		 *            BulkLoader class.
 		 */
 		public function SoundFile(path:String = null, id:String = null, priority:Number = NaN,
 			weight:int = 1)
@@ -98,10 +116,9 @@ package com.hexagonstar.io.file.types
 			}
 			else
 			{
-				throw new IllegalArgumentException(toString()
-					+ " SoundFile only accepts a Sound object as content.");
 				_valid = false;
-				_status = "failed!";
+				_status = "SoundFile only accepts a Sound object as content.";
+				throw new IllegalArgumentException(toString() + " " + _status);
 			}
 			
 			dispatchEvent(new Event(Event.COMPLETE));
@@ -109,7 +126,7 @@ package com.hexagonstar.io.file.types
 		
 		
 		/**
-		 * The SoundFile content as a Sound object.
+		 * The SoundFile content, as a Sound object.
 		 */
 		public function get contentAsSound():Sound
 		{
@@ -118,7 +135,21 @@ package com.hexagonstar.io.file.types
 		
 		
 		/**
-		 * Can't be used with SoundFile! The SoundFile only accepts a Sound object
+		 * The sound file's content data, as a ByteArray. This simply writes the sound
+		 * object into a ByteArray and returns it.
+		 */
+		override public function get contentAsBytes():ByteArray
+		{
+			if (!_sound) return null;
+			var b:ByteArray = new ByteArray();
+			b.writeObject(_sound);
+			b.position = 0;
+			return b;
+		}
+		
+		
+		/**
+		 * Unsupported by the SoundFile class! The SoundFile only accepts a Sound object
 		 * provided via <code>content</code>.
 		 */
 		override public function set contentAsBytes(v:ByteArray):void
