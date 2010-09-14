@@ -67,3 +67,58 @@ package
 	}
 }
 }}}
+
+It is also possible to use the _Queue_ class to create a *queue of file objects* and add these quickly to the bulk loader:
+
+{{{
+package 
+{
+	import com.hexagonstar.data.structures.queues.Queue;
+	import com.hexagonstar.event.FileIOEvent;
+	import com.hexagonstar.io.file.types.*;
+	import com.hexagonstar.io.file.BulkLoader;
+	
+	import flash.display.Sprite;
+	
+	public class Main extends Sprite
+	{
+		private var _bulkLoader:BulkLoader;
+		
+		
+		public function Main()
+		{
+			_bulkLoader = new BulkLoader();
+			_bulkLoader.addEventListener(FileIOEvent.FILE_COMPLETE, onFileComplete);
+			_bulkLoader.addEventListener(FileIOEvent.COMPLETE, onComplete);
+			_bulkLoader.addEventListener(FileIOEvent.IO_ERROR, onFileError);
+			
+			var queue:Queue = new Queue();
+			for (var i:int = 0; i < 20; i++)
+			{
+				queue.add(new ImageFile("images/image" + i + ".jpg"));
+			}
+			
+			_bulkLoader.addFileQueue(queue);
+			_bulkLoader.load();
+		}
+		
+		
+		private function onFileComplete(e:FileIOEvent):void
+		{
+			trace("Loaded file: " + e.file.path);
+		}
+		
+		
+		private function onComplete(e:FileIOEvent):void
+		{
+			trace("All files loaded.");
+		}
+		
+		
+		private function onFileError(e:FileIOEvent):void
+		{
+			trace("Failed loading file: " + e.file.path + " (Error was: " + e.text + ")");
+		}
+	}
+}
+}}}
