@@ -1,5 +1,10 @@
 #summary Explains the hexagonlib file API classes.
 
+===Contents===
+<wiki:toc max_depth="1" />
+
+----
+
 = File API Introduction =
 
 hexagonlib provides a collection of file classes to comfortably load and manage any number of files. The file API resides in the *com.hexagonstar.io.file* package and allows you to create file objects that contain the filesystem path to their physical files and then load these files with any of the hexagonlib file loader classes like the _!BulkLoader_ or the _!ZipLoader_.
@@ -11,8 +16,54 @@ var xmlFile:XMLFile = new XMLFile("path/to/the/example.xml");
 var imageFile:ImageFile = new ImageFile("path/to/the/example.png");
 }}}
 
-File type classes provide a unified interface to access information about the file and the loaded content. You can use the _content_ property to access the loaded file content in untyped form or use any of the accessors which a specific to the file type class but provide the content data strong-typed as for example the _contentAsString_ property of the _!TextFile_ class.
+File type classes provide a unified interface to access information about the file and the loaded content. You can use the _content_ property to access the loaded file content in untyped form or use any of the accessors which are specific to the file type class but provide the content data strong-typed as for example the _contentAsString_ property of the _!TextFile_ class.
 
 ----
 
 = Using the !BulkLoader =
+
+The _!BulkLoader_ class allows you to load a bulk of files. To use the loader you first create file objects and add these to the bulk loader. You then listen for the events fired by the bulk loader and call load() to start loading the files. Your files become available via the FileIOEvent broadcasted by the loader, consider the following example:
+
+{{{
+package 
+{
+	import com.hexagonstar.event.FileIOEvent;
+	import com.hexagonstar.io.file.types.*;
+	import com.hexagonstar.io.file.BulkLoader;
+	
+	import flash.display.Sprite;
+	
+	
+	public class Main extends Sprite
+	{
+		private var _bulkLoader:BulkLoader;
+		
+		
+		public function Main()
+		{
+			_bulkLoader = new BulkLoader();
+			_bulkLoader.addEventListener(FileIOEvent.FILE_COMPLETE, onFileComplete);
+			_bulkLoader.addEventListener(FileIOEvent.COMPLETE, onComplete);
+			
+			_bulkLoader.addFile(new XMLFile("path/to/example.xml"));
+			_bulkLoader.addFile(new ImageFile("path/to/example.png"));
+			_bulkLoader.addFile(new ImageFile("path/to/another.jpg"));
+			_bulkLoader.addFile(new BinaryFile("path/to/shader.pbj"));
+			
+			_bulkLoader.load();
+		}
+		
+		
+		private function onFileComplete(e:FileIOEvent):void
+		{
+			trace("Loaded file: " + e.file.path);
+		}
+		
+		
+		private function onComplete(e:FileIOEvent):void
+		{
+			trace("All files loaded.");
+		}
+	}
+}
+}}}
