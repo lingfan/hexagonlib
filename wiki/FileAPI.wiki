@@ -160,12 +160,13 @@ package
 	import com.hexagonstar.io.file.types.IFile;
 	import com.hexagonstar.io.file.ZipLoader;
 	
+	import flash.display.Sprite;
 	import flash.events.IOErrorEvent;
 	import flash.events.Event;
 	import flash.filesystem.File;
 	
 	
-	public class Main
+	public class Main extends Sprite
 	{
 		private var _zipFile:File;
 		private var _zipLoader:ZipLoader;
