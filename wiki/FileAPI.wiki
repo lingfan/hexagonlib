@@ -1,5 +1,4 @@
 #summary Explains the hexagonlib file API classes, BulkLoader, ZipLoader etc.
-#sidebar TableOfContents
 
 *Contents*
 <wiki:toc max_depth="3" />
