@@ -1,7 +1,7 @@
 #summary Explains the hexagonlib file API classes, BulkLoader, ZipLoader etc.
 
-===Contents===
-<wiki:toc max_depth="1" />
+*Contents*
+<wiki:toc max_depth="3" />
 
 ----
 
@@ -122,3 +122,23 @@ package
 	}
 }
 }}}
+
+==Load Priorities==
+
+Files are loaded in the same order they were added to the bulk loader unless you set the load priority on files. A file with a higher priority value is loaded before one with a lower value. In the following example file2 would be loaded before file1:
+
+{{{
+var file1:TextFile = new TextFile("example.txt", null, 0);
+var file2:TextFile = new TextFile("another.txt");
+file2.priority = 1;
+}}}
+
+==Load Connections==
+
+By default the bulk loader loads one file at a time and then continues with the next. However if files are loaded over a network (e.g. from a server) it can be beneficial to raise the amount of load connections so that more than one file is loaded at (nearly) the same time. You can use the _maxConnections_ property of the _!BulkLoader_ class for this. E.g. setting this property to 4 like ...
+
+{{{
+_bulkLoader.maxConnections = 4;
+}}}
+
+... will let the bulk loader load up to four files simultaneously. Anytime a file is done loading the next one in the file bulk will be loaded until no more are left. NOTE: loading more than one file at the same time will still sort and start loading files by priority but it cannot be assured which file has been finished loading first and is therefore first available for the application.
