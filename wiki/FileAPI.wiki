@@ -142,3 +142,9 @@ _bulkLoader.maxConnections = 4;
 }}}
 
 ... will let the bulk loader load up to four files simultaneously. Anytime a file is done loading the next one in the file bulk will be loaded until no more are left. NOTE: loading more than one file at the same time will still sort and start loading files by priority but it cannot be assured which file has been finished loading first and is therefore first available for the application.
+
+----
+
+= Using the !ZipLoader =
+
+The _!ZipLoader_ class is available for AIR development and allows you to open a zip file and extract packed files from it using [http://en.wikipedia.org/wiki/Random_access Random Access]. This makes it possible to create large zip archives which contain many resources and access their contents in a AIR application without ever needing to load the whole zip file into memory.
