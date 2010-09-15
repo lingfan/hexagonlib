@@ -147,4 +147,84 @@ _bulkLoader.maxConnections = 4;
 
 = Using the !ZipLoader =
 
-The _!ZipLoader_ class is available for AIR development and allows you to open a zip file and extract packed files from it using [http://en.wikipedia.org/wiki/Random_access Random Access]. This makes it possible to create large zip archives which contain many resources and access their contents in a AIR application without ever needing to load the whole zip file into memory.
+The _!ZipLoader_ class is available for AIR development and allows you to open a standard zip file and extract packed files from it using [http://en.wikipedia.org/wiki/Random_access Random Access]. This makes it possible to create large zip archives which contain many resources and access these in an AIR application without ever needing to load the whole zip file into memory.
+
+To use the !ZipLoader you first have to open a zip file with it by providing a _flash.filesystem.File_ object and listen for the _Event.OPEN_ event which is broadcasted once the zip loader is ready for accessing the zip file's contents. Once the !ZipLoader is ready you can add file objects to it in the same fashion as with the !BulkLoader that can then be 'loaded' from the zip file. The following example opens a zip file named _resources.zip_ which is located in the application folder and then 'loads' three resource files from it:
+
+{{{
+package 
+{
+	import com.hexagonstar.event.FileIOEvent;
+	import com.hexagonstar.io.file.types.XMLFile;
+	import com.hexagonstar.io.file.types.ImageFile;
+	import com.hexagonstar.io.file.types.IFile;
+	import com.hexagonstar.io.file.ZipLoader;
+	
+	import flash.events.IOErrorEvent;
+	import flash.events.Event;
+	import flash.filesystem.File;
+	
+	
+	public class Main
+	{
+		private var _zipFile:File;
+		private var _zipLoader:ZipLoader;
+		
+		
+		public function Main()
+		{
+			_zipFile = File.applicationDirectory.resolvePath("resources.zip");
+			_zipLoader = new ZipLoader(_zipFile);
+			_zipLoader.addEventListener(Event.OPEN, onZipLoaderOpen);
+			_zipLoader.addEventListener(Event.CLOSE, onZipLoaderClose);
+			_zipLoader.addEventListener(IOErrorEvent.IO_ERROR, onZipLoaderError);
+			_zipLoader.open();
+		}
+		
+		
+		private function onZipLoaderOpen(e:Event):void
+		{
+			/* ZipLoader has been opened, let's extract some files from it */
+			_zipLoader.addEventListener(FileIOEvent.FILE_COMPLETE, onFileComplete);
+			_zipLoader.addEventListener(FileIOEvent.IO_ERROR, onFileError);
+			_zipLoader.addFile(new ImageFile("images/texture_115.png"));
+			_zipLoader.addFile(new ImageFile("images/tileset_level2.png"));
+			_zipLoader.addFile(new XMLFile("maps/level2_map.xml"));
+		}
+		
+		
+		private function onZipLoaderClose(e:Event):void
+		{
+			trace("ZipLoader closed.");
+			_zipLoader.dispose();
+		}
+		
+		
+		private function onZipLoaderError(e:IOErrorEvent):void
+		{
+			trace("Error trying to open the zip file (Error was: " + e.text + ").");
+		}
+		
+		
+		private function onFileComplete(e:FileIOEvent):void
+		{
+			var file:IFile = e.file;
+			trace("Loaded file from zip: " + file.path);
+			if (file.valid)
+			{
+				// Do something with the file.
+			}
+			else
+			{
+				trace("File invalid: " + file.status);
+			}
+		}
+		
+		
+		private function onFileError(e:FileIOEvent):void
+		{
+			trace("Error trying to load file from zip: " + e.text);
+		}
+	}
+}
+}}}
