@@ -191,6 +191,7 @@ package
 			_zipLoader.addFile(new ImageFile("images/texture_115.png"));
 			_zipLoader.addFile(new ImageFile("images/tileset_level2.png"));
 			_zipLoader.addFile(new XMLFile("maps/level2_map.xml"));
+			_zipLoader.load();
 		}
 		
 		
