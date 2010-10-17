@@ -19,7 +19,7 @@
 	<property name="swc.targetname.flex"	value="hexagonlib_030_flex.swc"/>
 	
 	<!-- version of the used flex sdk -->
-	<property name="sdk.version"		value="4.1.0"/>
+	<property name="sdk.version"		value="3.5.0"/>
 	
 	<!-- version of the targetted flash player -->
 	<property name="fpv.version"		value="10.0.0"/>
@@ -63,6 +63,7 @@
 	<target name="Build" description="Builds a distribution version.">
 		<prepareBuild/>
 		<buildFlashSWC/>
+		<buildFlexSWC/>
 		<buildAIRSWC/>
 		<refresh/>
 	</target>
@@ -181,7 +182,7 @@ package com.hexagonstar
 				<source-path path-element="${path.src.flash}"/>
 				<include-sources dir="${path.src.flash}" includes="*"/>
 				
-				<compiler.library-path dir="${FLEX_HOME}/frameworks/libs/player/10.0" append="false">
+				<compiler.library-path dir="${FLEX_HOME}/frameworks/libs/player/10" append="false">
 					<include name="*.swc"/>
 				</compiler.library-path>
 				<compiler.library-path dir="${FLEX_HOME}/frameworks/libs" append="false">
@@ -209,7 +210,7 @@ package com.hexagonstar
 				<source-path path-element="${path.src.flash}"/>
 				<include-sources dir="${path.src.air}" includes="*"/>
 				
-				<compiler.library-path dir="${FLEX_HOME}/frameworks/libs/player/10.0" append="false">
+				<compiler.library-path dir="${FLEX_HOME}/frameworks/libs/player/10" append="false">
 					<include name="*.swc"/>
 				</compiler.library-path>
 				<compiler.library-path dir="${FLEX_HOME}/frameworks/libs" append="false">
@@ -237,16 +238,15 @@ package com.hexagonstar
 				<source-path path-element="${path.src.flash}"/>
 				<include-sources dir="${path.src.flex}" includes="**/*.as"/>
 				
-				<compiler.library-path dir="${FLEX_HOME}/frameworks/libs/player/10.0" append="false">
+				<compiler.library-path dir="${FLEX_HOME}/frameworks/libs/player/10" append="false">
 					<include name="*.swc"/>
 				</compiler.library-path>
 				<compiler.library-path dir="${FLEX_HOME}/frameworks/libs" append="false">
-					<include name="flex.swc"/>
+					<include name="*.swc"/>
 				</compiler.library-path>
 				<compiler.library-path dir="${FLEX_HOME}/frameworks/locale/en_US" append="false">
 					<include name="*.swc"/>
 				</compiler.library-path>
-				
 			</compc>
 		</sequential>
 	</macrodef>
