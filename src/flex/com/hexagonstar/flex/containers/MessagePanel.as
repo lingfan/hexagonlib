@@ -28,20 +28,19 @@
 package com.hexagonstar.flex.containers
 {
 	import com.hexagonstar.flex.controls.FlexButton;
-	import com.hexagonstar.flex.event.FlexWindowEvent;
+	import com.hexagonstar.flex.event.FlexPanelEvent;
 
 	import mx.containers.ControlBar;
 	import mx.controls.Label;
 	import mx.controls.Text;
-	import mx.managers.PopUpManager;
 
 	import flash.events.MouseEvent;
 	
 	
 	/**
-	 * MessageWindow
+	 * A panel that contains a title, a message and an OK button.
 	 */
-	public class MessageWindow extends FlexWindow
+	public class MessagePanel extends FlexPanel
 	{
 		//-----------------------------------------------------------------------------------------
 		// Properties
@@ -51,34 +50,6 @@ package com.hexagonstar.flex.containers
 		protected var _okButton:FlexButton;
 		protected var _messageTitle:Label;
 		protected var _messageText:Text;
-		
-		
-		//-----------------------------------------------------------------------------------------
-		// Constructor
-		//-----------------------------------------------------------------------------------------
-		
-		/**
-		 * Creates a new instance of the class.
-		 */
-		public function MessageWindow()
-		{
-			super();
-		}
-		
-		
-		//-----------------------------------------------------------------------------------------
-		// Public Methods
-		//-----------------------------------------------------------------------------------------
-		
-		/**
-		 * @inheritDoc
-		 */
-		override public function close():void
-		{
-			dispose();
-			PopUpManager.removePopUp(this);
-			dispatchEvent(new FlexWindowEvent(FlexWindowEvent.CLOSE, this));
-		}
 		
 		
 		//-----------------------------------------------------------------------------------------
@@ -129,7 +100,7 @@ package com.hexagonstar.flex.containers
 		 */
 		protected function onOKButtonClick(e:MouseEvent):void
 		{
-			dispatchEvent(new FlexWindowEvent(FlexWindowEvent.OK_BUTTON, this));
+			dispatchEvent(new FlexPanelEvent(FlexPanelEvent.OK_BUTTON, this));
 			close();
 		}
 		
@@ -155,13 +126,13 @@ package com.hexagonstar.flex.containers
 			layout = "vertical";
 			
 			_messageTitle = new Label();
-			_messageTitle.styleName = "messageWindowTitle";
+			_messageTitle.styleName = "messagePanelTitle";
 			_messageTitle.percentWidth = 100;
 			_messageTitle.selectable = false;
 			addChild(_messageTitle);
 			
 			_messageText = new Text();
-			_messageText.styleName = "messageWindowText";
+			_messageText.styleName = "messagePanelText";
 			_messageText.percentWidth = 100;
 			_messageText.percentHeight = 100;
 			_messageText.selectable = false;

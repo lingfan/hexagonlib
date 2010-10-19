@@ -29,14 +29,15 @@ package com.hexagonstar.flex.containers
 {
 	import com.hexagonstar.display.StageReference;
 	import com.hexagonstar.flex.controls.FlexButton;
-	import com.hexagonstar.flex.event.FlexWindowEvent;
+	import com.hexagonstar.flex.event.FlexPanelEvent;
 
-	import mx.containers.TitleWindow;
+	import mx.containers.Panel;
 	import mx.core.UIComponent;
 	import mx.events.DragEvent;
 	import mx.events.FlexEvent;
 	import mx.managers.CursorManager;
 	import mx.managers.CursorManagerPriority;
+	import mx.managers.PopUpManager;
 
 	import flash.display.Stage;
 	import flash.events.Event;
@@ -46,9 +47,9 @@ package com.hexagonstar.flex.containers
 	
 	
 	/**
-	 * A resizeable and maximizeable window.
+	 * A resizeable and maximizeable panel.
 	 */
-	public class FlexWindow extends TitleWindow
+	public class FlexPanel extends Panel
 	{
 		//-----------------------------------------------------------------------------------------
 		// Constants
@@ -74,7 +75,7 @@ package com.hexagonstar.flex.containers
 		// Properties
 		//-----------------------------------------------------------------------------------------
 		
-		protected static var _resizeObj:FlexWindow;
+		protected static var _resizeObj:FlexPanel;
 		protected static var _resizeMargin:Number = 6;
 		protected static var _mouseState:Number = 0;
 		protected static var _cursorType:Class = null;
@@ -97,6 +98,8 @@ package com.hexagonstar.flex.containers
 		protected var _ox:Number = 0;
 		protected var _oy:Number = 0;
 		
+		protected var _resizable:Boolean = true;
+		protected var _dragable:Boolean = true;
 		protected var _maximized:Boolean = false;
 		protected var _resizing:Boolean = false;
 		protected var _preventDragging:Boolean = false;
@@ -109,7 +112,7 @@ package com.hexagonstar.flex.containers
 		/**
 		 * Creates a new instance of the class.
 		 */
-		public function FlexWindow()
+		public function FlexPanel()
 		{
 			_stage = StageReference.stage;
 			addEventListener(FlexEvent.CREATION_COMPLETE, onCreationComplete);
@@ -136,7 +139,17 @@ package com.hexagonstar.flex.containers
 		public function close():void
 		{
 			dispose();
-			dispatchEvent(new FlexWindowEvent(FlexWindowEvent.CLOSE, this));
+			
+			try
+			{
+				PopUpManager.removePopUp(this);
+			}
+			catch (err:Error)
+			{
+				parent.removeChild(this);
+			}
+			
+			dispatchEvent(new FlexPanelEvent(FlexPanelEvent.CLOSE, this));
 		}
 		
 		
@@ -154,6 +167,28 @@ package com.hexagonstar.flex.containers
 		//-----------------------------------------------------------------------------------------
 		
 		[Bindable]
+		public function get resizable():Boolean
+		{
+			return _resizable;
+		}
+		public function set resizable(v:Boolean):void
+		{
+			_resizable = v;
+		}
+		
+		
+		[Bindable]
+		public function get dragable():Boolean
+		{
+			return _dragable;
+		}
+		public function set dragable(v:Boolean):void
+		{
+			_dragable = v;
+		}
+		
+		
+		[Bindable]
 		public function set closeButtonEnabled(v:Boolean):void
 		{
 			_closeButton.enabled = v;
@@ -165,11 +200,11 @@ package com.hexagonstar.flex.containers
 		
 		
 		[Bindable]
-		public function set maximizeButtonEnabled(v:Boolean):void
+		public function set maximizable(v:Boolean):void
 		{
 			_maxButton.enabled = v;
 		}
-		public function get maximizeButtonEnabled():Boolean
+		public function get maximizable():Boolean
 		{
 			return _maxButton.enabled;
 		}
@@ -275,18 +310,6 @@ package com.hexagonstar.flex.containers
 			checkBoundaries();
 			initPosition(this);
 			addEventListeners();
-			
-			addEventListener(Event.ENTER_FRAME, onEnterFrame);
-		}
-		
-		
-		/**
-		 * @private
-		 */
-		protected function onEnterFrame(e:Event):void
-		{
-			removeEventListener(Event.ENTER_FRAME, onEnterFrame);
-			bringToFront();
 		}
 		
 		
@@ -296,7 +319,7 @@ package com.hexagonstar.flex.containers
 		protected function onWindowClick(e:MouseEvent):void
 		{
 			_titleBar.removeEventListener(MouseEvent.MOUSE_MOVE, onDragMove);
-			bringToFront();
+			//bringToFront();
 		}
 		
 		
@@ -305,7 +328,7 @@ package com.hexagonstar.flex.containers
 		 */
 		protected function onDragStart(e:MouseEvent):void
 		{
-			if (_preventDragging) return;
+			if (!_dragable || _preventDragging) return;
 			_titleBar.addEventListener(MouseEvent.MOUSE_MOVE, onDragMove);
 		}
 		
@@ -334,7 +357,7 @@ package com.hexagonstar.flex.containers
 		{
 			_titleBar.removeEventListener(MouseEvent.MOUSE_MOVE, onDragMove);
 			stopDrag();
-			dispatchEvent(new FlexWindowEvent(FlexWindowEvent.MOVE, this));
+			dispatchEvent(new FlexPanelEvent(FlexPanelEvent.MOVE, this));
 		}
 		
 		
@@ -343,6 +366,7 @@ package com.hexagonstar.flex.containers
 		 */
 		protected function onMouseMove(e:MouseEvent):void
 		{
+			if (!_resizable) return;
 			/* No resizing allowed if window is maximized */
 			if (!_maximized)
 			{
@@ -406,6 +430,7 @@ package com.hexagonstar.flex.containers
 		 */
 		protected function onMouseOut(e:MouseEvent):void
 		{
+			if (!_resizable) return;
 			if (!_resizeObj)
 			{
 				changeCursor(null, 0, 0);
@@ -419,10 +444,10 @@ package com.hexagonstar.flex.containers
 		 */
 		protected function onMouseDown(e:MouseEvent):void
 		{
-			if (_mouseState != SIDE_OTHER)
+			if (_resizable && _mouseState != SIDE_OTHER)
 			{
 				onWindowClick(e);
-				_resizeObj = FlexWindow(e.currentTarget);
+				_resizeObj = FlexPanel(e.currentTarget);
 				initPosition(_resizeObj);
 				_op.x = _resizeObj.mouseX;
 				_op.y = _resizeObj.mouseY;
@@ -437,11 +462,12 @@ package com.hexagonstar.flex.containers
 		 */
 		protected function onMouseUp(e:MouseEvent):void
 		{
+			if (!_resizable) return;
 			if (_resizeObj)
 			{
 				initPosition(_resizeObj);
 				_resizing = false;
-				dispatchEvent(new FlexWindowEvent(FlexWindowEvent.RESIZE, this));
+				dispatchEvent(new FlexPanelEvent(FlexPanelEvent.RESIZE, this));
 			}
 			_resizeObj = null;
 		}
@@ -452,12 +478,13 @@ package com.hexagonstar.flex.containers
 		 */
 		protected function onResize(e:MouseEvent):void
 		{
+			if (!_resizable) return;
 			// TODO Add condition to not allow dragging over the bounds (right & bottom)!
 			if (_resizeObj)
 			{
 				_resizeObj.stopDragging();
 				
-				var ro:FlexWindow = _resizeObj;
+				var ro:FlexPanel = _resizeObj;
 				var xpl:Number = _stage.mouseX - _resizeObj._op.x;
 				var ypl:Number = _stage.mouseY - _resizeObj._op.y;
 				var mw:int = _minWidth;
@@ -510,7 +537,7 @@ package com.hexagonstar.flex.containers
 		 */
 		protected function onTitleBarDoubleClick(e:MouseEvent):void
 		{
-			if (_preventDragging) return;
+			if (!_maxButton.enabled || _preventDragging) return;
 			onMaximize(null);
 		}
 		
@@ -520,6 +547,7 @@ package com.hexagonstar.flex.containers
 		 */
 		protected function onMaximize(e:MouseEvent):void
 		{
+			if (!_maxButton.enabled) return;
 			if (!_maximized)
 			{
 				initPosition(this);
@@ -529,7 +557,7 @@ package com.hexagonstar.flex.containers
 				height = _stage.stageHeight - _boundBottom - _boundTop;
 				_maxButton.styleName = "restoreButton";
 				_maximized = true;
-				dispatchEvent(new FlexWindowEvent(FlexWindowEvent.MAXIMIZE, this));
+				dispatchEvent(new FlexPanelEvent(FlexPanelEvent.MAXIMIZE, this));
 			}
 			else
 			{
@@ -539,7 +567,7 @@ package com.hexagonstar.flex.containers
 				height = _oh;
 				_maxButton.styleName = "maximizeButton";
 				_maximized = false;
-				dispatchEvent(new FlexWindowEvent(FlexWindowEvent.RESTORE, this));
+				dispatchEvent(new FlexPanelEvent(FlexPanelEvent.RESTORE, this));
 			}
 			checkBoundaries();
 		}
@@ -624,26 +652,39 @@ package com.hexagonstar.flex.containers
 		/**
 		 * @private
 		 */
+		override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
+		{
+			super.updateDisplayList(unscaledWidth, unscaledHeight);
+			checkBoundaries();
+		}
+		
+		
+		/**
+		 * @private
+		 */
 		protected function checkBoundaries():void
 		{
-			/* Check that the minimum size is not out of bounds */
-			var bw:int = _stage.stageWidth - _boundRight - _boundLeft;
-			var bh:int = _stage.stageHeight - _boundBottom - _boundTop;
-			
-			/* Check that the window size is not overlapping the boundaries */
-			if (width < _minWidth) width = _minWidth;
-			else if (width > bw) width = bw;
-			if (height < _minHeight) height = _minHeight;
-			else if (height > bh) height = bh;
-			
-			/* Check that the window position is inside the boundaries */
-			var px:int = _stage.stageWidth - _boundRight - width;
-			var py:int = _stage.stageHeight - _boundBottom - height;
-			
-			if (x < _boundLeft) x = _boundLeft;
-			else if (x > px) x = px;
-			if (y < _boundTop) y = _boundTop;
-			else if (y > py) y = py;
+			if (_resizable)
+			{
+				/* Check that the minimum size is not out of bounds */
+				var bw:int = _stage.stageWidth - _boundRight - _boundLeft;
+				var bh:int = _stage.stageHeight - _boundBottom - _boundTop;
+				
+				/* Check that the window size is not overlapping the boundaries */
+				if (width < _minWidth) width = _minWidth;
+				else if (width > bw) width = bw;
+				if (height < _minHeight) height = _minHeight;
+				else if (height > bh) height = bh;
+				
+				/* Check that the window position is inside the boundaries */
+				var px:int = _stage.stageWidth - _boundRight - width;
+				var py:int = _stage.stageHeight - _boundBottom - height;
+				
+				if (x < _boundLeft) x = _boundLeft;
+				else if (x > px) x = px;
+				if (y < _boundTop) y = _boundTop;
+				else if (y > py) y = py;
+			}
 			
 			positionChildren();
 		}
@@ -719,7 +760,7 @@ package com.hexagonstar.flex.containers
 		/**
 		 * @private
 		 */
-		protected static function initPosition(w:FlexWindow):void
+		protected static function initPosition(w:FlexPanel):void
 		{
 			w._oh = w.height;
 			w._ow = w.width;
