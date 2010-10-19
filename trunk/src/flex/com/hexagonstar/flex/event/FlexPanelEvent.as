@@ -27,16 +27,16 @@
  */
 package com.hexagonstar.flex.event
 {
-	import com.hexagonstar.flex.containers.FlexWindow;
+	import com.hexagonstar.flex.containers.FlexPanel;
 
 	import flash.events.Event;
-	/**	 * FlexWindowEvent Class	 */	public class FlexWindowEvent extends Event	{		//-----------------------------------------------------------------------------------------		// Constants		//-----------------------------------------------------------------------------------------				public static const MOVE:String					= "flexWindowMove";		public static const MAXIMIZE:String				= "flexWindowMaximize";		public static const RESTORE:String				= "flexWindowRestore";		public static const RESIZE:String				= "flexWindowResize";		public static const OK_BUTTON:String			= "flexWindowOKButton";		public static const CANCEL_BUTTON:String		= "flexWindowCancelButton";		public static const CLOSE_BUTTON:String			= "flexWindowCloseButton";		public static const CLOSE:String				= "flexWindowClose";				
+	/**	 * FlexPanelEvent Class	 */	public class FlexPanelEvent extends Event	{		//-----------------------------------------------------------------------------------------		// Constants		//-----------------------------------------------------------------------------------------				public static const MOVE:String					= "flexWindowMove";		public static const MAXIMIZE:String				= "flexWindowMaximize";		public static const RESTORE:String				= "flexWindowRestore";		public static const RESIZE:String				= "flexWindowResize";		public static const OK_BUTTON:String			= "flexWindowOKButton";		public static const CANCEL_BUTTON:String		= "flexWindowCancelButton";		public static const CLOSE_BUTTON:String			= "flexWindowCloseButton";		public static const CLOSE:String				= "flexWindowClose";				
 		//-----------------------------------------------------------------------------------------
 		// Properties
-		//-----------------------------------------------------------------------------------------				public var window:FlexWindow;				
+		//-----------------------------------------------------------------------------------------				public var window:FlexPanel;				
 		//-----------------------------------------------------------------------------------------
 		// Constructor
-		//-----------------------------------------------------------------------------------------				/**		 * Creates a new FlexWindowEvent instance.		 */		public function FlexWindowEvent(type:String, window:FlexWindow = null,			bubbles:Boolean = false, cancelable:Boolean = false)		{			this.window = window;
+		//-----------------------------------------------------------------------------------------				/**		 * Creates a new FlexWindowEvent instance.		 */		public function FlexPanelEvent(type:String, window:FlexPanel = null,			bubbles:Boolean = false, cancelable:Boolean = false)		{			this.window = window;
 			super(type, bubbles, cancelable);		}		
 		
 		//-----------------------------------------------------------------------------------------
@@ -44,4 +44,4 @@ package com.hexagonstar.flex.event
 		//-----------------------------------------------------------------------------------------		
 		/**
 		 * @inheritDoc
-		 */		override public function clone():Event		{			return new FlexWindowEvent(type, window, bubbles, cancelable);		}	}}
+		 */		override public function clone():Event		{			return new FlexPanelEvent(type, window, bubbles, cancelable);		}	}}
