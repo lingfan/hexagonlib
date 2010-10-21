@@ -43,13 +43,23 @@ package com.hexagonstar.flex.controls
 		/**
 		 * Adds a new item to the form.
 		 */
-		public function addItem(label:String, item:UIComponent):void
+		public function addItem(label:String, item:UIComponent, itemWidth:Number = NaN):void
 		{
 			var formItem:FormItem = new FormItem();
 			formItem.percentWidth = 100;
 			formItem.label = label;
+			
+			if (isNaN(itemWidth))
+			{
+				item.percentWidth = 100;
+			}
+			else
+			{
+				formItem.setStyle("horizontalAlign", "right");
+				item.width = itemWidth;
+			}
+			
 			addChild(formItem);
-			item.percentWidth = 100;
 			formItem.addChild(item);
 		}
 		
