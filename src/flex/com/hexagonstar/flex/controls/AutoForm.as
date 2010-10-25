@@ -29,6 +29,7 @@ package com.hexagonstar.flex.controls
 {
 	import mx.containers.Form;
 	import mx.containers.FormItem;
+	import mx.controls.Spacer;
 	import mx.core.UIComponent;
 
 	/**
@@ -61,6 +62,24 @@ package com.hexagonstar.flex.controls
 			
 			addChild(formItem);
 			formItem.addChild(item);
+		}
+		
+		
+		public function addSpacer(height:int = 0):void
+		{
+			var s:Spacer = new Spacer();
+			s.percentWidth = 100;
+			
+			if (height > 0)
+			{
+				s.height = height;
+			}
+			else
+			{
+				s.percentHeight = 100;
+			}
+			
+			addChild(s);
 		}
 		
 		
