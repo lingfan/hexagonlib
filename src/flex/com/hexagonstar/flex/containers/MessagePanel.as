@@ -33,6 +33,7 @@ package com.hexagonstar.flex.containers
 	import mx.containers.ControlBar;
 	import mx.controls.Label;
 	import mx.controls.Text;
+	import mx.events.FlexEvent;
 
 	import flash.events.MouseEvent;
 	
@@ -94,6 +95,16 @@ package com.hexagonstar.flex.containers
 		//-----------------------------------------------------------------------------------------
 		// Event Handlers
 		//-----------------------------------------------------------------------------------------
+		
+		/**
+		 * @private
+		 */
+		override protected function onCreationComplete(e:FlexEvent):void
+		{
+			super.onCreationComplete(e);
+			focusManager.setFocus(_okButton);
+		}
+		
 		
 		/**
 		 * @private

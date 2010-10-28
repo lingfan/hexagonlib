@@ -38,6 +38,28 @@ package com.hexagonstar.flex.controls
 	public class AutoForm extends Form
 	{
 		//-----------------------------------------------------------------------------------------
+		// Properties
+		//-----------------------------------------------------------------------------------------
+		
+		protected var _alignment:String;
+		
+		
+		//-----------------------------------------------------------------------------------------
+		// Constructor
+		//-----------------------------------------------------------------------------------------
+		
+		/**
+		 * Creates a new instance of the class.
+		 * 
+		 * @param alignment Alignment used for forum items, "left or "right".
+		 */
+		public function AutoForm(alignment:String = "left")
+		{
+			_alignment = alignment;
+		}
+		
+		
+		//-----------------------------------------------------------------------------------------
 		// Public Methods
 		//-----------------------------------------------------------------------------------------
 		
@@ -56,7 +78,7 @@ package com.hexagonstar.flex.controls
 			}
 			else
 			{
-				formItem.setStyle("horizontalAlign", "right");
+				formItem.setStyle("horizontalAlign", _alignment);
 				item.width = itemWidth;
 			}
 			
