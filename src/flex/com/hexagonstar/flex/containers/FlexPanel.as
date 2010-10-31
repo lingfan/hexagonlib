@@ -42,6 +42,8 @@ package com.hexagonstar.flex.containers
 	import flash.display.Stage;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
+	import flash.filters.BitmapFilterQuality;
+	import flash.filters.GlowFilter;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	
@@ -60,6 +62,9 @@ package com.hexagonstar.flex.containers
 		private static const SIDE_BOTTOM:Number	= 2;
 		private static const SIDE_LEFT:Number	= 4;
 		private static const SIDE_RIGHT:Number	= 8;
+		
+		private static const _shadowFilter:GlowFilter =
+			new GlowFilter(0x000000, 1.0, 12, 12, 1, BitmapFilterQuality.MEDIUM);
 		
 		[Embed(source="../assets/cursor_verticalResize.png")]
 		private static const VERTICAL:Class;
@@ -103,6 +108,7 @@ package com.hexagonstar.flex.containers
 		protected var _maximized:Boolean = false;
 		protected var _resizing:Boolean = false;
 		protected var _preventDragging:Boolean = false;
+		protected var _showShadow:Boolean = false;
 		
 		
 		//-----------------------------------------------------------------------------------------
@@ -284,6 +290,17 @@ package com.hexagonstar.flex.containers
 		public function get boundRight():int
 		{
 			return _boundRight;
+		}
+		
+		
+		[Bindable]
+		public function get showShadow():Boolean
+		{
+			return _showShadow;
+		}
+		public function set showShadow(v:Boolean):void
+		{
+			_showShadow = v;
 		}
 		
 		
@@ -646,6 +663,11 @@ package com.hexagonstar.flex.containers
 			_closeButton.styleName = "closeButton";
 			_closeButton.enabled = false;
 			_titleBar.addChild(_closeButton);
+			
+			if (_showShadow)
+			{
+				filters = [_shadowFilter];
+			}
 		}
 		
 		
