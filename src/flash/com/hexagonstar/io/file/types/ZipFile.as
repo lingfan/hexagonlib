@@ -50,7 +50,7 @@ package com.hexagonstar.io.file.types
 	 * 
 	 * @eventType flash.events.Event.COMPLETE
 	 */
-	[Event(name="complete", type="flash.events.Event.COMPLETE")]
+	[Event(name="complete", type="flash.events.Event")]
 	
 	/**
 	 * Dispatched after a zipped file which has been requested with <code>getFile()</code>
@@ -58,7 +58,7 @@ package com.hexagonstar.io.file.types
 	 * 
 	 * @eventType com.hexagonstar.event.FileIOEvent.COMPLETE
 	 */
-	[Event(name="fileIOComplete", type="com.hexagonstar.event.FileIOEvent.COMPLETE")]
+	[Event(name="fileIOComplete", type="com.hexagonstar.event.FileIOEvent")]
 	
 	
 	/**

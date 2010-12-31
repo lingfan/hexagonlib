@@ -35,7 +35,7 @@ package com.hexagonstar.io.file.types
 	 * 
 	 * @eventType flash.events.Event.COMPLETE
 	 */
-	[Event(name="complete", type="flash.events.Event.COMPLETE")]
+	[Event(name="complete", type="flash.events.Event")]
 	 
 	 
 	/**
