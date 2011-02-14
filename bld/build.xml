@@ -191,6 +191,9 @@ package com.hexagonstar
 				<compiler.library-path dir="${FLEX_HOME}/frameworks/locale/en_US" append="false">
 					<include name="*.swc"/>
 				</compiler.library-path>
+				<compiler.library-path dir="${path.src}/swc" append="false">
+					<include name="*.swc"/>
+				</compiler.library-path>
 				
 			</compc>
 		</sequential>
@@ -217,6 +220,9 @@ package com.hexagonstar
 					<include name="flex.swc"/>
 				</compiler.library-path>
 				<compiler.library-path dir="${FLEX_HOME}/frameworks/locale/en_US" append="false">
+					<include name="*.swc"/>
+				</compiler.library-path>
+				<compiler.library-path dir="${path.src}/swc" append="false">
 					<include name="*.swc"/>
 				</compiler.library-path>
 				
