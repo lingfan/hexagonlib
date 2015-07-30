@@ -1,0 +1,1 @@
+## This repository is now deprecated, too **gasp**! It moved to github. Please visit https://github.com/hexagonstar/hexagonlib for the new hexagonlib repository! ##
